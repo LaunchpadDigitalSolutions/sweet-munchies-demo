@@ -23,12 +23,8 @@ img{max-width:100%;display:block}
 .hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .hero-top .iconbtn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
   border-radius:50%;background:rgba(255,255,255,.65)}
-.brandmark{text-align:center;margin:4px 0 16px}
-.brandmark .l1{font-size:24px;font-weight:900;letter-spacing:2px;color:#ff2d87;
-  text-shadow:1.5px 1.5px 0 #fff}
-.brandmark .l2{font-size:42px;font-weight:900;letter-spacing:-1px;line-height:.95;
-  -webkit-text-stroke:1.5px #241726;text-shadow:2px 3px 0 rgba(36,23,38,.18)}
-.brandmark .l2 i{font-style:normal}
+.brandmark{text-align:center;margin:2px 0 14px}
+.brandmark img{width:82%;max-width:300px;height:auto;margin:0 auto}
 .hero h2{margin:0;font-size:22px;font-weight:800;text-align:center;line-height:1.2}
 .hero h2 span{color:var(--pink)}
 .hero p{margin:6px 0 18px;text-align:center;font-size:14px;color:#6d5f6b}
