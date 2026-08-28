@@ -258,3 +258,15 @@ img{max-width:100%;display:block}
 
 /* button element used as anchor */
 a.btn{text-decoration:none}
+
+/* ---------- sticky category bar ----------
+   The chips control the grid directly beneath them, so they stick to the
+   top of the viewport once you scroll into the menu. Switch category
+   without scrolling back up. */
+.chipbar{position:sticky;top:0;z-index:35;background:#fff;
+  border-bottom:1px solid var(--border);margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(90,40,80,.04)}
+.chipbar .chips{padding:12px 18px}
+/* fade at the right edge so it reads as scrollable */
+.chipbar::after{content:"";position:absolute;right:0;top:0;bottom:1px;width:34px;
+  background:linear-gradient(90deg,rgba(255,255,255,0),#fff);pointer-events:none}

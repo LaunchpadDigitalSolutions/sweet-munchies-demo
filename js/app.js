@@ -54,10 +54,25 @@ function renderGrid() {
 }
 
 function setCat(c) {
-  activeCat = c; term = ""; renderChips(); renderGrid();
-  $("menu-anchor").scrollIntoView({ behavior: "smooth" });
+  activeCat = c; term = "";
+  const bar = document.querySelector(".chipbar");
+  const stuck = bar && bar.getBoundingClientRect().top <= 1;
+  renderChips(); renderGrid();
+  // Only jump to the menu if the chip bar isn't already pinned at the top.
+  if (!stuck) $("menu-anchor").scrollIntoView({ behavior: "smooth", block: "start" });
+  centreChip();
 }
-function search(v) { term = v.trim().toLowerCase(); renderGrid(); }
+
+/* Keep the selected chip visible in the horizontal scroller */
+function centreChip() {
+  const on = document.querySelector(".chip.on");
+  if (on) on.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+}
+function search(v) {
+  term = v.trim().toLowerCase();
+  renderGrid();
+  if (term) $("menu-anchor").scrollIntoView({ behavior: "smooth", block: "start" });
+}
 function setMode(b) {
   document.querySelectorAll(".mode").forEach(x => x.classList.remove("sel"));
   b.classList.add("sel"); mode = b.dataset.mode; renderBasket();
@@ -267,6 +282,14 @@ function startPolling() {
 }
 
 /* ---------- nav / misc ---------- */
+/* Menu tab: go home, then pin the category bar to the top of the screen */
+function goMenu() {
+  go("home");
+  setTimeout(() => {
+    document.getElementById("menu-anchor").scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 60);
+}
+
 function go(v) {
   document.querySelectorAll(".view").forEach(x => x.classList.remove("active"));
   $("v-" + v).classList.add("active");

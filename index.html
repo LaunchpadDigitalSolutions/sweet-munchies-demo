@@ -56,8 +56,6 @@
     </div>
   </div>
 
-  <div class="chips" id="chips"></div>
-
   <button class="featured" onclick="openItem('d1',true)">
     <span class="featured-txt">
       <span class="featured-kicker">ANY 2<br>WAFFLES</span>
@@ -85,6 +83,7 @@
   </div>
 
   <div class="shead" id="menu-anchor"><h3>Menu</h3></div>
+  <div class="chipbar"><div class="chips" id="chips"></div></div>
   <div class="grid" id="grid"></div>
 
   <div class="benefits">
@@ -191,7 +190,7 @@
 <nav class="bottom-nav">
   <button class="nav-item on" data-nav="home" onclick="go('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Home</button>
-  <button class="nav-item" onclick="go('home');document.getElementById('menu-anchor').scrollIntoView({behavior:'smooth'})">
+  <button class="nav-item" onclick="goMenu()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M6 3c2 0 3 1.5 3 4s-1 4-3 4M18 3v18M15 3v6a3 3 0 0 0 3 3"/></svg>Menu</button>
   <button class="nav-item" data-nav="basket" onclick="go('basket')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>Basket
