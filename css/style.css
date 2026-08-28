@@ -270,3 +270,16 @@ a.btn{text-decoration:none}
 /* fade at the right edge so it reads as scrollable */
 .chipbar::after{content:"";position:absolute;right:0;top:0;bottom:1px;width:34px;
   background:linear-gradient(90deg,rgba(255,255,255,0),#fff);pointer-events:none}
+
+/* ---------- postcode lookup ---------- */
+.pcrow{display:flex;gap:9px}
+.pcrow input{flex:1;text-transform:uppercase}
+.pcbtn{min-width:88px;min-height:44px;border-radius:12px;background:var(--ink);color:#fff;
+  font-weight:700;font-size:15px}
+.pcbtn:disabled{opacity:.5}
+.pcresult{margin-top:10px;font-size:13.5px;line-height:1.45;display:none;
+  padding:11px 13px;border-radius:12px;font-weight:600}
+.pcresult.show{display:block}
+.pcresult.ok{background:#eafaf0;color:#0a6b36}
+.pcresult.no{background:#ffe9e9;color:#a11212}
+.pcresult.busy{background:#f3eef1;color:var(--muted)}

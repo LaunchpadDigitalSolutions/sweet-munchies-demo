@@ -173,8 +173,20 @@
       <input id="co-phone" type="tel" autocomplete="tel" placeholder="07…"></div>
     <div class="fld"><label for="co-email">Email <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
       <input id="co-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
-    <div class="fld" id="co-address-wrap"><label for="co-address">Delivery address</label>
-      <textarea id="co-address" rows="3" style="min-height:80px" autocomplete="street-address" placeholder="House number, street, postcode"></textarea></div>
+    <div id="co-address-wrap">
+      <div class="fld"><label for="co-postcode">Postcode</label>
+        <div class="pcrow">
+          <input id="co-postcode" type="text" autocomplete="postal-code" inputmode="text"
+                 placeholder="TS25 5RH" maxlength="9" oninput="pcTyping()">
+          <button type="button" class="pcbtn" id="pc-btn" onclick="findPostcode()">Find</button>
+        </div>
+        <div class="pcresult" id="pc-result"></div>
+      </div>
+      <div class="fld" id="co-street-wrap" style="display:none">
+        <label for="co-address">House number and street</label>
+        <input id="co-address" type="text" autocomplete="address-line1" placeholder="14 Elwick Road">
+      </div>
+    </div>
     <div class="fld"><label for="co-note">Notes <span style="font-weight:400;color:var(--muted)">(allergies, requests)</span></label>
       <textarea id="co-note" rows="2" style="min-height:64px"></textarea></div>
     <label class="optin"><input type="checkbox" id="co-optin">

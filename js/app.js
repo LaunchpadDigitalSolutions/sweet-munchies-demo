@@ -176,9 +176,56 @@ function lineQty(i, n) {
 function clearBasket() { basket = []; saveBasket(); renderBasket(); updateBadge(); toast("Basket cleared"); }
 function focusNote() { go("checkout"); setTimeout(() => $("co-note").focus(), 300); }
 
+
+/* ---------- postcode lookup ---------- */
+let deliveryCheck = null;   // { ok, postcode, area, miles } once verified
+
+function pcTyping() {
+  deliveryCheck = null;
+  const r = $("pc-result");
+  r.className = "pcresult";
+  $("co-street-wrap").style.display = "none";
+}
+
+async function findPostcode() {
+  const raw = $("co-postcode").value.trim();
+  const r = $("pc-result"), btn = $("pc-btn");
+  if (raw.length < 5) { r.className = "pcresult show no"; r.textContent = "Enter a full postcode."; return; }
+
+  btn.disabled = true;
+  r.className = "pcresult show busy";
+  r.textContent = "Checking…";
+
+  try {
+    const res = await checkDelivery(raw);
+    deliveryCheck = res;
+    if (res.ok) {
+      r.className = "pcresult show ok";
+      r.textContent = `${res.postcode}${res.area ? " · " + res.area : ""} — we deliver here (about ${res.miles} miles).`;
+      $("co-street-wrap").style.display = "block";
+      $("co-postcode").value = res.postcode;
+      setTimeout(() => $("co-address").focus(), 150);
+    } else {
+      r.className = "pcresult show no";
+      r.textContent = `${res.postcode} is about ${res.miles} miles away — outside our delivery area. You can still choose collection.`;
+      $("co-street-wrap").style.display = "none";
+    }
+  } catch (e) {
+    r.className = "pcresult show no";
+    r.textContent = e.message === "SM-401"
+      ? "We couldn't find that postcode. Check and try again."
+      : "Couldn't check that postcode just now — type your full address instead.";
+    // Graceful fallback: let them order anyway rather than blocking the sale
+    $("co-street-wrap").style.display = "block";
+    deliveryCheck = { ok: true, postcode: raw.toUpperCase(), area: "", miles: null, unverified: true };
+  }
+  btn.disabled = false;
+}
+
 /* ---------- checkout ---------- */
 function renderCheckout() {
   const t = totals();
+  if (mode === "collection") deliveryCheck = null;
   $("co-summary").innerHTML = `
     <div class="trow"><span>${basket.reduce((s, l) => s + l.qty, 0)} item(s)</span><span>${money(t.sub)}</span></div>
     <div class="trow"><span>${mode === "delivery" ? "Delivery" : "Collection"}</span>
@@ -192,13 +239,20 @@ async function placeOrder() {
   const name = $("co-name").value.trim();
   const phone = $("co-phone").value.trim();
   const email = $("co-email").value.trim();
-  const addr = $("co-address").value.trim();
+  const street = $("co-address") ? $("co-address").value.trim() : "";
+  const addr = street && deliveryCheck
+    ? street + ", " + deliveryCheck.postcode
+    : street;
   const note = $("co-note").value.trim();
   const optin = $("co-optin").checked;
 
   if (!name) { toast("We need your name"); return; }
   if (phone.length < 9) { toast("We need a phone number"); return; }
-  if (mode === "delivery" && !addr) { toast("We need a delivery address"); return; }
+  if (mode === "delivery") {
+    if (!deliveryCheck) { toast("Check your postcode first"); return; }
+    if (!deliveryCheck.ok) { toast("That postcode is outside our delivery area"); return; }
+    if (!street) { toast("We need your house number and street"); return; }
+  }
 
   const btn = $("co-pay");
   btn.disabled = true; btn.textContent = "Placing order…";

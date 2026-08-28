@@ -138,3 +138,60 @@ async function sendBugReport(r) {
     })
   }, "SM-300");
 }
+
+
+/* ============================================================
+   Postcode lookup — postcodes.io (free, open, no API key).
+   Validates a UK postcode and returns coordinates so we can
+   check it falls inside the delivery radius.
+   Error codes: SM-4xx
+   ============================================================ */
+
+const SHOP_POSTCODE = "TS25 5RH";      // 124 Oxford Road, Hartlepool
+const DELIVERY_RADIUS_MILES = 3.5;     // confirm the real radius with the client
+
+let shopCoords = null;
+
+async function lookupPostcode(pc) {
+  const clean = pc.replace(/\s+/g, "").toUpperCase();
+  if (clean.length < 5) throw new Error("SM-400");
+  const res = await fetch("https://api.postcodes.io/postcodes/" + encodeURIComponent(clean));
+  if (res.status === 404) throw new Error("SM-401");
+  if (!res.ok) throw new Error("SM-402 (" + res.status + ")");
+  const j = await res.json();
+  return j.result;   // { postcode, latitude, longitude, admin_district, ... }
+}
+
+async function getShopCoords() {
+  if (shopCoords) return shopCoords;
+  try {
+    const cached = JSON.parse(localStorage.getItem("sm_shop_coords") || "null");
+    if (cached) { shopCoords = cached; return cached; }
+  } catch (e) {}
+  const r = await lookupPostcode(SHOP_POSTCODE);
+  shopCoords = { lat: r.latitude, lng: r.longitude };
+  try { localStorage.setItem("sm_shop_coords", JSON.stringify(shopCoords)); } catch (e) {}
+  return shopCoords;
+}
+
+/* Great-circle distance in miles */
+function milesBetween(a, b) {
+  const toRad = d => d * Math.PI / 180;
+  const R = 3958.8;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.asin(Math.sqrt(s));
+}
+
+/* Returns { ok, postcode, area, miles } or throws SM-4xx */
+async function checkDelivery(pc) {
+  const [place, shop] = await Promise.all([lookupPostcode(pc), getShopCoords()]);
+  const miles = milesBetween(shop, { lat: place.latitude, lng: place.longitude });
+  return {
+    ok: miles <= DELIVERY_RADIUS_MILES,
+    postcode: place.postcode,
+    area: place.admin_ward || place.admin_district || "",
+    miles: Math.round(miles * 10) / 10
+  };
+}
