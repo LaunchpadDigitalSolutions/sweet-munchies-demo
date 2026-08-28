@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff2d87">
+<title>Sweet Munchies — Order Direct</title>
+<meta name="description" content="Order waffles, cookie dough, milkshakes and cakes direct from Sweet Munchies, 124 Oxford Road, Hartlepool.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+<div class="health" id="health">Can't reach the ordering system right now. Please call 01429 271111.</div>
+<div class="main">
+
+<!-- ================= HOME ================= -->
+<section class="view active" id="v-home">
+  <div class="hero">
+    <div class="hero-top">
+      <button class="iconbtn" onclick="toast('Demo — menu drawer')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <button class="iconbtn" onclick="toast('Demo — notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
+    </div>
+
+    <div class="brandmark">
+      <div class="l1">SWEET</div>
+      <div class="l2"><i style="color:#ff2d87">M</i><i style="color:#ff8a00">U</i><i style="color:#ffd400">N</i><i style="color:#3ec95b">C</i><i style="color:#2bb3e0">H</i><i style="color:#8b5cf6">I</i><i style="color:#ff2d87">E</i><i style="color:#ff8a00">S</i></div>
+    </div>
+
+    <h2>Craving something <span>sweet?</span></h2>
+    <p>Waffles, milkshakes, cakes &amp; more — 124 Oxford Road</p>
+
+    <div class="modes">
+      <button class="mode sel" data-mode="delivery" onclick="setMode(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 17.5H9l-2-7h11l-1.5 4M7 10.5L6 6H3"/></svg>
+        <span><span class="mode-label">DELIVERY</span><br><span class="mode-sub">Opens 14:00 · £2.50</span></span>
+      </button>
+      <button class="mode" data-mode="collection" onclick="setMode(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+        <span><span class="mode-label">COLLECTION</span><br><span class="mode-sub">Opens 14:00 · no fee</span></span>
+      </button>
+    </div>
+    <div class="tagline">ORDER. INDULGE. REPEAT.</div>
+  </div>
+
+  <div class="searchbar">
+    <div class="searchwrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" placeholder="Search for an item" oninput="search(this.value)">
+    </div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <button class="featured" onclick="openItem('d1',true)">
+    <span class="featured-txt">
+      <span class="featured-kicker">ANY 2<br>WAFFLES</span>
+      <span class="featured-badge">£15.99</span>
+      <span class="featured-sub">Any two waffles with one topping each. Choose your toppings as you order.</span>
+    </span>
+    <img class="featured-img" src="https://d8j0ntlcm91z4.cloudfront.net/user_3F2zO4mnH1Ac9Z8aX9b4j07BQzs/hf_20260828_113143_ee9154ae-000b-4bad-b367-8b568f862725.png" alt="Two waffles">
+  </button>
+
+  <div class="shead"><h3>Popular</h3><a onclick="setCat('All')">View all</a></div>
+  <div class="rail" id="rail-pop"></div>
+
+  <div class="shead"><h3>Special offers</h3></div>
+  <div class="offers" id="offers"></div>
+
+  <div class="loyalty">
+    <h3>Sweet Rewards</h3>
+    <p>Every 6th order free. Stamps go on automatically.</p>
+    <div class="stamps">
+      <div class="stamp on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m5 13 4 4L19 7"/></svg></div>
+      <div class="stamp on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m5 13 4 4L19 7"/></svg></div>
+      <div class="stamp on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m5 13 4 4L19 7"/></svg></div>
+      <div class="stamp">4</div><div class="stamp">5</div><div class="stamp">FREE</div>
+    </div>
+  </div>
+
+  <div class="shead" id="menu-anchor"><h3>Menu</h3></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="benefits">
+    <div class="benefit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 9l7 .5-5.5 4.6L18 21l-6-3.6L6 21l1.5-6.9L2 9.5 9 9z"/></svg>
+      <b>Sweet Rewards</b><span>Points on every order</span></div>
+    <div class="benefit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12 22l-9-9V3h10zM7.5 7.5h.01"/></svg>
+      <b>Exclusive Offers</b><span>Deals only in the app</span></div>
+    <div class="benefit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3"/><circle cx="18.5" cy="17.5" r="3"/><path d="M15 17.5H9l-2-7h11l-1.5 4M7 10.5 6 6H3"/></svg>
+      <b>Fast Delivery</b><span>Straight from the shop</span></div>
+    <div class="benefit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <b>Safe &amp; Secure</b><span>Secure card payments</span></div>
+  </div>
+</section>
+
+<!-- ================= ITEM ================= -->
+<section class="view" id="v-item">
+  <div style="position:relative">
+    <div class="detail-nav">
+      <button onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button onclick="toast('Saved to favourites')"><svg viewBox="0 0 24 24" fill="none" stroke="#ff2d87" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg></button>
+    </div>
+    <img class="detail-img" id="d-img" src="" alt="">
+  </div>
+  <div class="detail-body">
+    <div class="detail-head">
+      <h2 id="d-name"></h2><span class="p" id="d-price"></span>
+    </div>
+    <p class="detail-desc" id="d-desc"></p>
+    <div id="d-options"></div>
+    <div class="hr"></div>
+    <div class="qtyrow">
+      <div class="qty"><button onclick="bumpQty(-1)">−</button><span id="d-qty">1</span><button onclick="bumpQty(1)">+</button></div>
+      <div style="font-size:13px;color:var(--muted)">Everything chosen by tapping — no comment box</div>
+    </div>
+  </div>
+  <div class="sticky-foot">
+    <button class="btn btn-primary" onclick="addToBasket()">Add to basket <span id="d-total"></span></button>
+  </div>
+</section>
+
+<!-- ================= BASKET ================= -->
+<section class="view" id="v-basket">
+  <div class="topbar">
+    <button class="iconbtn" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <h1>Your Basket</h1>
+    <button class="iconbtn" onclick="clearBasket()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+  </div>
+  <div id="basket-lines"></div>
+  <div id="basket-foot"></div>
+</section>
+
+<!-- ================= TRACK ================= -->
+<section class="view" id="v-track">
+  <div class="topbar">
+    <button class="iconbtn" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <h1>Order <span id="track-ref">—</span></h1>
+    <button class="iconbtn" onclick="toast('Call the shop on 01429 271111')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.3M12 17h.01"/></svg></button>
+  </div>
+  <div class="track">
+    <div class="track-hero">
+      <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3"/><circle cx="18.5" cy="17.5" r="3"/><path d="M15 17.5H9l-2-7h11l-1.5 4M7 10.5 6 6H3"/></svg></div>
+      <h2 id="track-title">Order on the way!</h2>
+      <p id="track-sub">We've got your order and it's on its way to you.</p>
+      <div id="track-stamps" class="stampline" style="display:none"></div>
+    </div>
+    <ul class="steps" id="steps"></ul>
+    <div style="margin-top:30px"><a class="btn btn-ghost" href="tel:01429271111">Call the shop</a></div>
+  </div>
+</section>
+
+<!-- ================= CHECKOUT ================= -->
+<section class="view" id="v-checkout">
+  <div class="topbar">
+    <button class="iconbtn" onclick="go('basket')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <h1>Checkout</h1><span style="width:44px"></span>
+  </div>
+  <div style="padding:18px">
+    <div class="totals" style="padding:0 0 6px" id="co-summary"></div>
+    <div class="hr"></div>
+    <div class="fld"><label for="co-name">Your name</label>
+      <input id="co-name" type="text" autocomplete="name" placeholder="First and last name"></div>
+    <div class="fld"><label for="co-phone">Mobile number</label>
+      <input id="co-phone" type="tel" autocomplete="tel" placeholder="07…"></div>
+    <div class="fld"><label for="co-email">Email <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input id="co-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="fld" id="co-address-wrap"><label for="co-address">Delivery address</label>
+      <textarea id="co-address" rows="3" style="min-height:80px" autocomplete="street-address" placeholder="House number, street, postcode"></textarea></div>
+    <div class="fld"><label for="co-note">Notes <span style="font-weight:400;color:var(--muted)">(allergies, requests)</span></label>
+      <textarea id="co-note" rows="2" style="min-height:64px"></textarea></div>
+    <label class="optin"><input type="checkbox" id="co-optin">
+      <span>Keep me posted about offers and new items from Sweet Munchies.</span></label>
+    <p style="font-size:12px;color:var(--muted);margin:14px 0 0">
+      Your details stay with Sweet Munchies. No third-party platform involved.</p>
+  </div>
+  <div class="sticky-foot">
+    <button class="btn btn-primary" id="co-pay" onclick="placeOrder()">Place order</button>
+  </div>
+</section>
+
+<nav class="bottom-nav">
+  <button class="nav-item on" data-nav="home" onclick="go('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Home</button>
+  <button class="nav-item" onclick="go('home');document.getElementById('menu-anchor').scrollIntoView({behavior:'smooth'})">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M6 3c2 0 3 1.5 3 4s-1 4-3 4M18 3v18M15 3v6a3 3 0 0 0 3 3"/></svg>Menu</button>
+  <button class="nav-item" data-nav="basket" onclick="go('basket')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>Basket
+    <span class="badge" id="nav-badge" style="display:none">0</span></button>
+  <button class="nav-item" data-nav="track" onclick="go('track')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="m3.3 7.3 8.7 5 8.7-5M12 22V12.3"/></svg>Orders</button>
+  <button class="nav-item" onclick="toast('Demo — account area')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Account</button>
+</nav>
+</div>
+
+<button class="bugbtn" onclick="openBug()" aria-label="Report a problem">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M5 8l2 2M19 8l-2 2M4 15h16"/><ellipse cx="12" cy="13" rx="6" ry="8"/></svg></button>
+
+<div class="modal" id="bugmodal">
+  <h2>Report a problem</h2>
+  <p style="color:var(--muted);font-size:14px;margin:0">Tell us what went wrong and we'll fix it.</p>
+  <div class="fld"><label for="bug-name">Your name</label><input id="bug-name" type="text"></div>
+  <div class="fld"><label for="bug-email">Email</label><input id="bug-email" type="email"></div>
+  <div class="fld"><label for="bug-msg">What happened?</label><textarea id="bug-msg" rows="4" style="min-height:104px"></textarea></div>
+  <div class="fld" style="display:flex;gap:10px;margin-top:20px">
+    <button class="btn btn-ghost" onclick="closeBug()">Cancel</button>
+    <button class="btn btn-primary" onclick="sendBug()">Send</button></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

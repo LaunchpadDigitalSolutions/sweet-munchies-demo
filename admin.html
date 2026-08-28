@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#241726">
+<title>Sweet Munchies — Kitchen</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+body{background:#f4eef2}
+.admin{max-width:900px;margin:0 auto;background:#fff;min-height:100vh;padding-bottom:80px}
+.abar{position:sticky;top:0;z-index:40;background:var(--ink);color:#fff;
+  padding:calc(13px + env(safe-area-inset-top)) 18px 13px;display:flex;align-items:center;gap:12px}
+.abar h1{margin:0;font-size:17px;font-weight:800;flex:1}
+.abar .stamp{font-size:11px;opacity:.65}
+.refresh{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;color:#fff}
+.refresh svg{width:20px;height:20px}
+.tabs{display:flex;border-bottom:1px solid var(--border);position:sticky;
+  top:calc(56px + env(safe-area-inset-top));background:#fff;z-index:30}
+.tab{flex:1;min-height:50px;font-size:14px;font-weight:700;color:var(--muted);
+  border-bottom:3px solid transparent}
+.tab.on{color:var(--pink);border-bottom-color:var(--pink)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 18px 4px}
+.stat{background:var(--pink-soft);border-radius:16px;padding:14px}
+.stat b{display:block;font-size:24px;font-weight:900;color:var(--ink);line-height:1.1}
+.stat span{font-size:12px;color:var(--pink-dark);font-weight:700}
+.ordercard{margin:14px 18px;border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.oc-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fbf6f9}
+.oc-ref{font-weight:900;font-size:16px}
+.pill{font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;text-transform:uppercase;letter-spacing:.4px}
+.p-placed{background:#fff2cc;color:#8a6100}
+.p-preparing{background:#ffe0ef;color:#a3105c}
+.p-on_the_way,.p-ready{background:#dbeafe;color:#1e40af}
+.p-completed{background:#dcfce7;color:#0a6b36}
+.p-cancelled{background:#f1f1f1;color:#666}
+.oc-time{margin-left:auto;font-size:12px;color:var(--muted)}
+.oc-body{padding:14px 16px}
+.oc-cust{font-weight:700;font-size:15px}
+.oc-meta{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45}
+.oc-items{margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--border);font-size:14px}
+.oc-item{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+.oc-item i{font-style:normal;color:var(--muted);font-size:12.5px;display:block}
+.oc-note{margin-top:10px;background:#fff8e1;border-radius:10px;padding:10px 12px;
+  font-size:13px;color:#7a5c00;font-weight:600}
+.oc-total{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;
+  border-top:1px solid var(--border);font-weight:800;font-size:16px}
+.oc-actions{display:flex;gap:8px;padding:0 16px 16px;flex-wrap:wrap}
+.oc-actions button{flex:1;min-width:120px;min-height:46px;border-radius:12px;
+  font-weight:700;font-size:14px;background:var(--pink);color:#fff}
+.oc-actions .sec{background:#f3eef1;color:var(--ink)}
+.custrow{display:flex;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+.custrow b{display:block;font-size:15px}
+.custrow span{font-size:12.5px;color:var(--muted)}
+.custrow .right{margin-left:auto;text-align:right}
+.optin-yes{color:var(--green);font-weight:800;font-size:12px}
+.updated{font-size:12px;color:var(--muted);padding:10px 18px 0;text-align:center}
+@media (min-width:768px){.stats{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="admin">
+  <div class="abar">
+    <div style="flex:1">
+      <h1>Sweet Munchies — Kitchen</h1>
+      <div class="stamp">124 Oxford Road · demo build</div>
+    </div>
+    <button class="refresh" onclick="load()" aria-label="Refresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg></button>
+  </div>
+
+  <div class="health" id="health">Can't reach Supabase. Check the connection.</div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="live" onclick="setTab('live')">Live orders</button>
+    <button class="tab" data-tab="all" onclick="setTab('all')">All orders</button>
+    <button class="tab" data-tab="cust" onclick="setTab('cust')">Customers</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="updated" id="updated"></div>
+  <div id="panel"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/api.js"></script>
+<script>
+/* ============================================================
+   admin.js — kitchen dashboard
+   ============================================================ */
+let orders = [], customers = [], tab = "live", timer = null;
+const $ = id => document.getElementById(id);
+const money = n => "£" + Number(n).toFixed(2);
+const LIVE = ["placed", "preparing", "on_the_way", "ready"];
+
+const NEXT = {
+  placed: { label: "Start preparing", to: "preparing" },
+  preparing: { label: "Out for delivery", to: "on_the_way", collectLabel: "Ready to collect", collectTo: "ready" },
+  on_the_way: { label: "Mark delivered", to: "completed" },
+  ready: { label: "Mark collected", to: "completed" }
+};
+
+function ago(ts) {
+  const m = Math.floor((Date.now() - new Date(ts)) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return m + " min ago";
+  return Math.floor(m / 60) + "h " + (m % 60) + "m ago";
+}
+
+async function load() {
+  try {
+    [orders, customers] = await Promise.all([listOrders(100), listCustomers(200)]);
+    $("health").style.display = "none";
+  } catch (e) {
+    $("health").style.display = "block";
+    return;
+  }
+  $("updated").textContent = "Updated " + new Date().toLocaleTimeString("en-GB",
+    { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  renderStats(); render();
+}
+
+function renderStats() {
+  const today = new Date().toDateString();
+  const todays = orders.filter(o => new Date(o.created_at).toDateString() === today);
+  const live = orders.filter(o => LIVE.includes(o.status));
+  const rev = todays.filter(o => o.status !== "cancelled")
+    .reduce((s, o) => s + Number(o.total), 0);
+  const optins = customers.filter(c => c.marketing_optin).length;
+  $("stats").innerHTML = `
+    <div class="stat"><b>${live.length}</b><span>Live now</span></div>
+    <div class="stat"><b>${todays.length}</b><span>Orders today</span></div>
+    <div class="stat"><b>${money(rev)}</b><span>Takings today</span></div>
+    <div class="stat"><b>${customers.length}</b><span>Customers · ${optins} opted in</span></div>`;
+}
+
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x.dataset.tab === t));
+  render();
+}
+
+function orderCard(o) {
+  const collect = o.fulfilment === "collection";
+  const n = NEXT[o.status];
+  const items = (o.items || []).map(i => `
+    <div class="oc-item"><span>${i.qty} × ${i.name}
+      ${i.opts && i.opts.length ? `<i>${i.opts.join(" · ")}</i>` : ""}</span>
+      <span>${money(i.unit * i.qty)}</span></div>`).join("");
+
+  let actions = "";
+  if (n) {
+    const label = collect && n.collectLabel ? n.collectLabel : n.label;
+    const to = collect && n.collectTo ? n.collectTo : n.to;
+    actions = `<button onclick="advance('${o.id}','${to}')">${label}</button>
+               <button class="sec" onclick="advance('${o.id}','cancelled')">Cancel</button>`;
+  }
+
+  return `<div class="ordercard">
+    <div class="oc-head">
+      <span class="oc-ref">${o.order_ref}</span>
+      <span class="pill p-${o.status}">${o.status.replace(/_/g, " ")}</span>
+      <span class="oc-time">${ago(o.created_at)}</span>
+    </div>
+    <div class="oc-body">
+      <div class="oc-cust">${o.customer_name} · ${collect ? "Collection" : "Delivery"}</div>
+      <div class="oc-meta">
+        <a href="tel:${o.customer_phone}">${o.customer_phone}</a>
+        ${o.address ? "<br>" + o.address : ""}
+      </div>
+      <div class="oc-items">${items}</div>
+      ${o.note ? `<div class="oc-note">Note: ${o.note}</div>` : ""}
+      <div class="oc-total"><span>Total</span><span>${money(o.total)}</span></div>
+    </div>
+    ${actions ? `<div class="oc-actions">${actions}</div>` : ""}
+  </div>`;
+}
+
+function render() {
+  const p = $("panel");
+  if (tab === "cust") {
+    p.innerHTML = customers.length ? customers.map(c => `
+      <div class="custrow">
+        <div><b>${c.name || "—"}</b><span>${c.phone}${c.email ? " · " + c.email : ""}</span></div>
+        <div class="right"><b>${money(c.total_spent)}</b>
+          <span>${c.order_count} order(s) · ${c.stamps}/6 stamps</span>
+          ${c.marketing_optin ? '<div class="optin-yes">Opted in</div>' : ""}</div>
+      </div>`).join("")
+      : `<div class="empty">No customers yet. They're added automatically at checkout.</div>`;
+    return;
+  }
+  const list = tab === "live" ? orders.filter(o => LIVE.includes(o.status)) : orders;
+  p.innerHTML = list.length ? list.map(orderCard).join("")
+    : `<div class="empty">${tab === "live" ? "No live orders right now." : "No orders yet."}</div>`;
+}
+
+async function advance(id, status) {
+  try {
+    await setOrderStatus(id, status);
+    toast("Updated to " + status.replace(/_/g, " "));
+    load();
+  } catch (e) { toast(e.message); }
+}
+
+let tt;
+function toast(m) {
+  const t = $("toast"); t.textContent = m; t.classList.add("show");
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "v")
+    alert("Sweet Munchies Kitchen\nv" + APP_VERSION + "\nLaunchpad Digital Solutions");
+});
+
+load();
+timer = setInterval(load, 20000);   // auto-refresh every 20s
+</script>
+</body>
+</html>
