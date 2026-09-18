@@ -40,4 +40,12 @@ or `placed → preparing → ready → completed` (collection).
 - Replace the typographic wordmark with the real Sweet Munchies logo
 - Add Stripe at checkout (currently records the order without taking payment)
 - Confirm the actual delivery-platform commission rate used in the basket comparison
-- Tighten RLS: the admin dashboard currently reads with the anon key
+- **Tighten RLS in Supabase itself.** `admin.html` now has a front-end
+  password gate (`login.html`), but it still reads `sm_customers` /
+  `sm_orders` with the public anon key. That gate only stops someone
+  opening the page in a browser — it does nothing to stop someone
+  calling the Supabase REST API directly with the same anon key. The
+  real fix is a Row Level Security policy in the Supabase dashboard
+  restricting reads on `sm_customers` and `sm_orders` to logged-in
+  staff only. This needs to be done directly in Supabase by a human
+  (or as its own follow-up task) — it was not done as part of this fix.

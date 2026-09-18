@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#241726">
+<title>Sign in — Sweet Munchies Kitchen</title>
+<link rel="icon" href="img/icon-180.png">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --pink:#ff2d87; --pink-dark:#d81b6a; --pink-soft:#fff0f6;
+    --ink:#241726; --muted:#7b7280; --border:#f6e2ec;
+  }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:#f4eef2; min-height:100vh; display:flex; align-items:center;
+    justify-content:center; padding:24px; color:var(--ink);
+  }
+  .card{
+    background:#fff; border-radius:18px; box-shadow:0 4px 32px rgba(0,0,0,.08);
+    padding:40px 32px; width:100%; max-width:380px;
+  }
+  .logo{font-size:1.4rem; font-weight:900; text-align:center; margin-bottom:4px}
+  .logo span{color:var(--pink)}
+  .subtitle{text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:30px}
+  .field{margin-bottom:16px}
+  .field label{
+    display:block; font-size:.7rem; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;
+  }
+  .field input{
+    width:100%; min-height:44px; padding:11px 14px; border:1.5px solid var(--border);
+    border-radius:10px; font-size:16px; color:var(--ink); background:var(--pink-soft);
+    outline:none;
+  }
+  .field input:focus{border-color:var(--pink)}
+  .btn{
+    width:100%; min-height:46px; padding:12px; background:var(--pink); color:#fff;
+    border:none; border-radius:10px; font-size:.95rem; font-weight:800;
+    cursor:pointer; margin-top:6px;
+  }
+  .btn:hover{background:var(--pink-dark)}
+  .error{
+    background:#fff5f5; border:1.5px solid #fc8181; border-radius:10px;
+    padding:10px 14px; font-size:.83rem; color:#c53030; margin-bottom:16px; display:none;
+  }
+  .demo-note{
+    margin-top:22px; padding:12px 14px; background:var(--pink-soft); border-radius:10px;
+    font-size:.75rem; color:var(--muted); text-align:center; line-height:1.5;
+  }
+  .demo-note strong{color:var(--pink-dark)}
+  .back-link{
+    display:block; text-align:center; margin-top:18px; font-size:.8rem;
+    color:var(--muted); text-decoration:none;
+  }
+  .back-link:hover{color:var(--pink)}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">🧇 Sweet <span>Munchies</span></div>
+  <div class="subtitle">Kitchen dashboard — staff sign in required</div>
+
+  <div class="error" id="errorMsg">Incorrect email or password. Try again.</div>
+
+  <div class="field">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="staff@sweetmunchies.co.uk" autocomplete="email">
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+  </div>
+
+  <button class="btn" onclick="doLogin()">Sign in →</button>
+
+  <div class="demo-note">
+    <strong>Stop-gap login only.</strong> This is a simple front-end password
+    check for the demo/pitch stage — it stops casual visitors opening the
+    dashboard, but it is <strong>not</strong> real access control. See the
+    project README for what's needed before this goes live with real
+    customer data.<br><br>
+    <strong>Demo credentials</strong><br>
+    Email: staff@sweetmunchies.co.uk<br>
+    Password: sweetmunchies124
+  </div>
+
+  <a href="index.html" class="back-link">← Back to storefront</a>
+</div>
+
+<script>
+  var SM_AUTH_KEY = 'sm_admin_auth';
+  var DEMO_EMAIL = 'staff@sweetmunchies.co.uk';
+  var DEMO_PASSWORD = 'sweetmunchies124';
+
+  // Already signed in? Go straight to the dashboard.
+  try {
+    if (localStorage.getItem(SM_AUTH_KEY) === 'ok') {
+      window.location.href = 'admin.html';
+    }
+  } catch (e) {}
+
+  function doLogin() {
+    var email = document.getElementById('email').value.trim().toLowerCase();
+    var password = document.getElementById('password').value;
+    var err = document.getElementById('errorMsg');
+
+    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      try { localStorage.setItem(SM_AUTH_KEY, 'ok'); } catch (e) {}
+      window.location.href = 'admin.html';
+    } else {
+      err.style.display = 'block';
+    }
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+</body>
+</html>

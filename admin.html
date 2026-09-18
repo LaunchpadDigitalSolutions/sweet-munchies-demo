@@ -70,6 +70,9 @@ body{background:#f4eef2}
     <button class="refresh" onclick="load()" aria-label="Refresh">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg></button>
+    <button class="refresh" onclick="logout()" aria-label="Sign out" title="Sign out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
   </div>
 
   <div class="health" id="health">Can't reach Supabase. Check the connection.</div>
@@ -93,6 +96,27 @@ body{background:#f4eef2}
 /* ============================================================
    admin.js — kitchen dashboard
    ============================================================ */
+
+/* ── AUTH GATE ──
+   Stop-gap only: this just stops someone opening this page in a
+   browser without knowing the staff password. It does NOT stop
+   someone calling the Supabase REST API directly with the public
+   anon key — that needs a Row Level Security policy set up in
+   Supabase itself (see README). */
+(function () {
+  try {
+    if (localStorage.getItem("sm_admin_auth") !== "ok") {
+      window.location.href = "login.html";
+    }
+  } catch (e) {
+    window.location.href = "login.html";
+  }
+})();
+function logout() {
+  try { localStorage.removeItem("sm_admin_auth"); } catch (e) {}
+  window.location.href = "login.html";
+}
+
 let orders = [], customers = [], tab = "live", timer = null;
 const $ = id => document.getElementById(id);
 const money = n => "£" + Number(n).toFixed(2);
