@@ -77,11 +77,6 @@
   <button class="btn" onclick="doLogin()">Sign in →</button>
 
   <div class="demo-note">
-    <strong>Stop-gap login only.</strong> This is a simple front-end password
-    check for the demo/pitch stage — it stops casual visitors opening the
-    dashboard, but it is <strong>not</strong> real access control. See the
-    project README for what's needed before this goes live with real
-    customer data.<br><br>
     <strong>Demo credentials</strong><br>
     Email: staff@sweetmunchies.co.uk<br>
     Password: sweetmunchies124
@@ -90,28 +85,58 @@
   <a href="index.html" class="back-link">← Back to storefront</a>
 </div>
 
+<script src="js/data.js"></script>
 <script>
   var SM_AUTH_KEY = 'sm_admin_auth';
+  var SM_PIN_KEY = 'sm_admin_pin';
   var DEMO_EMAIL = 'staff@sweetmunchies.co.uk';
-  var DEMO_PASSWORD = 'sweetmunchies124';
 
   // Already signed in? Go straight to the dashboard.
   try {
-    if (localStorage.getItem(SM_AUTH_KEY) === 'ok') {
+    if (sessionStorage.getItem(SM_PIN_KEY)) {
       window.location.href = 'admin.html';
     }
   } catch (e) {}
 
-  function doLogin() {
+  // The password is checked by the database itself (sm_check_staff_pin),
+  // not just compared to a value sitting in this page's own code — so
+  // someone can't just read the page source to get past this screen.
+  async function doLogin() {
     var email = document.getElementById('email').value.trim().toLowerCase();
     var password = document.getElementById('password').value;
     var err = document.getElementById('errorMsg');
+    var btn = document.querySelector('.btn');
 
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      try { localStorage.setItem(SM_AUTH_KEY, 'ok'); } catch (e) {}
-      window.location.href = 'admin.html';
-    } else {
+    if (email !== DEMO_EMAIL || !password) {
       err.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Checking…';
+    try {
+      var res = await fetch(SB_URL + '/rest/v1/rpc/sm_check_staff_pin', {
+        method: 'POST',
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': 'Bearer ' + SB_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ p_pin: password })
+      });
+      var ok = res.ok && (await res.json()) === true;
+      if (ok) {
+        try { sessionStorage.setItem(SM_PIN_KEY, password); } catch (e) {}
+        window.location.href = 'admin.html';
+      } else {
+        err.style.display = 'block';
+      }
+    } catch (e) {
+      err.textContent = 'Could not reach the server — check your connection and try again.';
+      err.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign in →';
     }
   }
 

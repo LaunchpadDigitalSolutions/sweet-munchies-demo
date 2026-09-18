@@ -98,22 +98,21 @@ body{background:#f4eef2}
    ============================================================ */
 
 /* ── AUTH GATE ──
-   Stop-gap only: this just stops someone opening this page in a
-   browser without knowing the staff password. It does NOT stop
-   someone calling the Supabase REST API directly with the public
-   anon key — that needs a Row Level Security policy set up in
-   Supabase itself (see README). */
+   The staff PIN entered at login is kept for this tab only
+   (sessionStorage) and sent with every staff request below — the
+   database itself checks it (sm_check_staff_pin) before returning
+   any customer/order data, not just this page deciding to redirect. */
+var STAFF_PIN = null;
 (function () {
   try {
-    if (localStorage.getItem("sm_admin_auth") !== "ok") {
-      window.location.href = "login.html";
-    }
-  } catch (e) {
+    STAFF_PIN = sessionStorage.getItem("sm_admin_pin");
+  } catch (e) {}
+  if (!STAFF_PIN) {
     window.location.href = "login.html";
   }
 })();
 function logout() {
-  try { localStorage.removeItem("sm_admin_auth"); } catch (e) {}
+  try { sessionStorage.removeItem("sm_admin_pin"); } catch (e) {}
   window.location.href = "login.html";
 }
 
@@ -138,7 +137,7 @@ function ago(ts) {
 
 async function load() {
   try {
-    [orders, customers] = await Promise.all([listOrders(100), listCustomers(200)]);
+    [orders, customers] = await Promise.all([listOrders(100, STAFF_PIN), listCustomers(200, STAFF_PIN)]);
     $("health").style.display = "none";
   } catch (e) {
     $("health").style.display = "block";
@@ -225,7 +224,7 @@ function render() {
 
 async function advance(id, status) {
   try {
-    await setOrderStatus(id, status);
+    await setOrderStatus(id, status, STAFF_PIN);
     toast("Updated to " + status.replace(/_/g, " "));
     load();
   } catch (e) { toast(e.message); }

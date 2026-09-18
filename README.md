@@ -40,12 +40,18 @@ or `placed → preparing → ready → completed` (collection).
 - Replace the typographic wordmark with the real Sweet Munchies logo
 - Add Stripe at checkout (currently records the order without taking payment)
 - Confirm the actual delivery-platform commission rate used in the basket comparison
-- **Tighten RLS in Supabase itself.** `admin.html` now has a front-end
-  password gate (`login.html`), but it still reads `sm_customers` /
-  `sm_orders` with the public anon key. That gate only stops someone
-  opening the page in a browser — it does nothing to stop someone
-  calling the Supabase REST API directly with the same anon key. The
-  real fix is a Row Level Security policy in the Supabase dashboard
-  restricting reads on `sm_customers` and `sm_orders` to logged-in
-  staff only. This needs to be done directly in Supabase by a human
-  (or as its own follow-up task) — it was not done as part of this fix.
+- **Database-side lock-down (needs a one-off SQL step before this is fully live).**
+  `admin.html`'s password gate (`login.html`) is now backed by real database
+  checks, not just a page-level password comparison: the customer-facing app
+  talks to `sm_get_order`/`sm_get_customer` (single-row lookups only), and the
+  kitchen dashboard talks to `sm_staff_list_orders`/`sm_staff_list_customers`/
+  `sm_staff_set_order_status`, each of which checks the staff PIN *inside the
+  database* before returning anything. Direct table reads on `sm_customers`
+  and `sm_orders` are meant to be switched off so the anon key can no longer
+  read either table in bulk, no matter who's asking.
+  **That switch-off migration itself still needs to be run against the live
+  database by a human** (or Josh needs to grant the automated build process
+  permission to apply it) — it wasn't auto-applied as part of this PR. Until
+  it's run, this PR's code changes are safe and backward-compatible (the old
+  direct-read behaviour still works), but the underlying bulk-read exposure
+  isn't actually closed yet.

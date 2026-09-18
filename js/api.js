@@ -25,10 +25,13 @@ async function sb(path, opts = {}, code = "SM-100") {
 }
 
 /* Health check — called before the app renders so a dead backend
-   shows a message rather than a blank screen. */
+   shows a message rather than a blank screen. Uses a dedicated
+   no-op function rather than reading a table directly, since anon
+   no longer has blanket read access (see sm_get_order/sm_get_customer
+   below for why). */
 async function healthCheck() {
   try {
-    await sb("sm_orders?select=id&limit=1", {}, "SM-101");
+    await sb("rpc/sm_ping", { method: "POST", body: JSON.stringify({}) }, "SM-101");
     return true;
   } catch (e) {
     return false;
@@ -55,23 +58,34 @@ async function createOrder(order) {
   return out[0];
 }
 
+/* Looks up ONE order by its reference — a customer tracking their own
+   order. Goes through a database function rather than a direct table
+   read, so the anon key this page uses can only ever fetch the exact
+   order someone already knows the reference for, never the whole list. */
 async function getOrder(ref) {
-  const out = await sb(
-    "sm_orders?order_ref=eq." + encodeURIComponent(ref) + "&select=*",
-    {}, "SM-103");
-  return out[0] || null;
+  const out = await sb("rpc/sm_get_order", {
+    method: "POST",
+    body: JSON.stringify({ p_ref: ref })
+  }, "SM-103");
+  return (out && out[0]) || null;
 }
 
-async function listOrders(limit = 50) {
-  return sb("sm_orders?select=*&order=created_at.desc&limit=" + limit, {}, "SM-104");
+/* Staff-only: the full order list for the kitchen dashboard. Requires
+   the staff PIN set at login — enforced inside the database function,
+   not just by this page's login screen. */
+async function listOrders(limit = 50, pin) {
+  return sb("rpc/sm_staff_list_orders", {
+    method: "POST",
+    body: JSON.stringify({ p_pin: pin, p_limit: limit })
+  }, "SM-104");
 }
 
-async function setOrderStatus(id, status) {
-  return sb("sm_orders?id=eq." + id, {
-    method: "PATCH",
-    headers: { "Prefer": "return=representation" },
-    body: JSON.stringify({ status, updated_at: new Date().toISOString() })
+async function setOrderStatus(id, status, pin) {
+  const out = await sb("rpc/sm_staff_set_order_status", {
+    method: "POST",
+    body: JSON.stringify({ p_pin: pin, p_id: id, p_status: status })
   }, "SM-105");
+  return out && out[0];
 }
 
 /* ---------- Customers ----------
@@ -79,12 +93,9 @@ async function setOrderStatus(id, status) {
    builds the shop's own marketing list, not a platform's. */
 
 async function upsertCustomer(c, spend) {
-  const found = await sb(
-    "sm_customers?phone=eq." + encodeURIComponent(c.phone) + "&select=*",
-    {}, "SM-200");
+  const ex = await getCustomer(c.phone);
 
-  if (found.length) {
-    const ex = found[0];
+  if (ex) {
     await sb("sm_customers?id=eq." + ex.id, {
       method: "PATCH",
       body: JSON.stringify({
@@ -111,15 +122,25 @@ async function upsertCustomer(c, spend) {
   return { ...made[0], returning: false };
 }
 
+/* Looks up ONE customer by phone number — used at checkout to see if
+   they're a returning customer. Goes through a database function for
+   the same reason as getOrder above: the anon key can only ever match
+   one phone number at a time, never pull the whole customer list. */
 async function getCustomer(phone) {
-  const out = await sb(
-    "sm_customers?phone=eq." + encodeURIComponent(phone) + "&select=*",
-    {}, "SM-203");
-  return out[0] || null;
+  const out = await sb("rpc/sm_get_customer", {
+    method: "POST",
+    body: JSON.stringify({ p_phone: phone })
+  }, "SM-203");
+  return (out && out[0]) || null;
 }
 
-async function listCustomers(limit = 200) {
-  return sb("sm_customers?select=*&order=created_at.desc&limit=" + limit, {}, "SM-204");
+/* Staff-only: the full customer list for the kitchen dashboard.
+   Requires the staff PIN, enforced inside the database function. */
+async function listCustomers(limit = 200, pin) {
+  return sb("rpc/sm_staff_list_customers", {
+    method: "POST",
+    body: JSON.stringify({ p_pin: pin, p_limit: limit })
+  }, "SM-204");
 }
 
 /* ---------- Bug reports (Launchpad standard) ---------- */
